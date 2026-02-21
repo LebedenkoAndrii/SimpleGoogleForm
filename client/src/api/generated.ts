@@ -37,7 +37,9 @@ export type Form = {
 export type Mutation = {
   __typename?: 'Mutation';
   createForm: Form;
+  deleteForm: Scalars['Boolean']['output'];
   submitResponse: Response;
+  updateForm?: Maybe<Form>;
 };
 
 
@@ -48,9 +50,22 @@ export type MutationCreateFormArgs = {
 };
 
 
+export type MutationDeleteFormArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSubmitResponseArgs = {
   answers: Array<AnswerInput>;
   formId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateFormArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  questions?: InputMaybe<Array<QuestionInput>>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Query = {
@@ -99,6 +114,40 @@ export type Response = {
   id: Scalars['ID']['output'];
 };
 
+export type CreateFormMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  questions?: InputMaybe<Array<QuestionInput> | QuestionInput>;
+}>;
+
+
+export type CreateFormMutation = { __typename?: 'Mutation', createForm: { __typename?: 'Form', id: string, title: string, description?: string | null, questions: Array<{ __typename?: 'Question', id: string, type: QuestionType, label: string, options: Array<string> }> } };
+
+export type UpdateFormMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  questions?: InputMaybe<Array<QuestionInput> | QuestionInput>;
+}>;
+
+
+export type UpdateFormMutation = { __typename?: 'Mutation', updateForm?: { __typename?: 'Form', id: string, title: string, description?: string | null, questions: Array<{ __typename?: 'Question', id: string, type: QuestionType, label: string, options: Array<string> }> } | null };
+
+export type DeleteFormMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteFormMutation = { __typename?: 'Mutation', deleteForm: boolean };
+
+export type SubmitResponseMutationVariables = Exact<{
+  formId: Scalars['ID']['input'];
+  answers: Array<AnswerInput> | AnswerInput;
+}>;
+
+
+export type SubmitResponseMutation = { __typename?: 'Mutation', submitResponse: { __typename?: 'Response', id: string, formId: string, answers: Array<{ __typename?: 'Answer', questionId: string, value: string }> } };
+
 export type FormsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -118,39 +167,59 @@ export type ResponsesQueryVariables = Exact<{
 
 export type ResponsesQuery = { __typename?: 'Query', responses: Array<{ __typename?: 'Response', id: string, formId: string, answers: Array<{ __typename?: 'Answer', questionId: string, value: string }> }> };
 
-export type CreateFormMutationVariables = Exact<{
-  title: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  questions?: InputMaybe<Array<QuestionInput> | QuestionInput>;
-}>;
 
-
-export type CreateFormMutation = { __typename?: 'Mutation', createForm: { __typename?: 'Form', id: string, title: string, description?: string | null, questions: Array<{ __typename?: 'Question', id: string, type: QuestionType, label: string, options: Array<string> }> } };
-
-export type SubmitResponseMutationVariables = Exact<{
-  formId: Scalars['ID']['input'];
-  answers: Array<AnswerInput> | AnswerInput;
-}>;
-
-
-export type SubmitResponseMutation = { __typename?: 'Mutation', submitResponse: { __typename?: 'Response', id: string, formId: string, answers: Array<{ __typename?: 'Answer', questionId: string, value: string }> } };
-
-export type UpdateFormMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  title?: InputMaybe<Scalars['String']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  questions?: InputMaybe<Array<QuestionInput> | QuestionInput>;
-}>;
-
-export type UpdateFormMutation = { __typename?: 'Mutation', updateForm: { __typename?: 'Form', id: string, title: string, description?: string | null, questions: Array<{ __typename?: 'Question', id: string, type: QuestionType, label: string, options: Array<string> }> } | null };
-
-export type DeleteFormMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-export type DeleteFormMutation = { __typename?: 'Mutation', deleteForm: boolean };
-
-
+export const CreateFormDocument = `
+    mutation CreateForm($title: String!, $description: String, $questions: [QuestionInput!]) {
+  createForm(title: $title, description: $description, questions: $questions) {
+    id
+    title
+    description
+    questions {
+      id
+      type
+      label
+      options
+    }
+  }
+}
+    `;
+export const UpdateFormDocument = `
+    mutation UpdateForm($id: ID!, $title: String, $description: String, $questions: [QuestionInput!]) {
+  updateForm(
+    id: $id
+    title: $title
+    description: $description
+    questions: $questions
+  ) {
+    id
+    title
+    description
+    questions {
+      id
+      type
+      label
+      options
+    }
+  }
+}
+    `;
+export const DeleteFormDocument = `
+    mutation DeleteForm($id: ID!) {
+  deleteForm(id: $id)
+}
+    `;
+export const SubmitResponseDocument = `
+    mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
+  submitResponse(formId: $formId, answers: $answers) {
+    id
+    formId
+    answers {
+      questionId
+      value
+    }
+  }
+}
+    `;
 export const FormsDocument = `
     query Forms {
   forms {
@@ -193,65 +262,9 @@ export const ResponsesDocument = `
   }
 }
     `;
-export const CreateFormDocument = `
-    mutation CreateForm($title: String!, $description: String, $questions: [QuestionInput!]) {
-  createForm(title: $title, description: $description, questions: $questions) {
-    id
-    title
-    description
-    questions {
-      id
-      type
-      label
-      options
-    }
-  }
-}
-    `;
-export const UpdateFormDocument = `
-    mutation UpdateForm($id: ID!, $title: String, $description: String, $questions: [QuestionInput!]) {
-  updateForm(id: $id, title: $title, description: $description, questions: $questions) {
-    id
-    title
-    description
-    questions {
-      id
-      type
-      label
-      options
-    }
-  }
-}
-    `;
-export const DeleteFormDocument = `
-    mutation DeleteForm($id: ID!) {
-  deleteForm(id: $id)
-}
-    `;
-export const SubmitResponseDocument = `
-    mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
-  submitResponse(formId: $formId, answers: $answers) {
-    id
-    formId
-    answers {
-      questionId
-      value
-    }
-  }
-}
-    `;
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
-    Forms: build.query<FormsQuery, FormsQueryVariables | void>({
-      query: (variables) => ({ document: FormsDocument, variables })
-    }),
-    Form: build.query<FormQuery, FormQueryVariables>({
-      query: (variables) => ({ document: FormDocument, variables })
-    }),
-    Responses: build.query<ResponsesQuery, ResponsesQueryVariables>({
-      query: (variables) => ({ document: ResponsesDocument, variables })
-    }),
     CreateForm: build.mutation<CreateFormMutation, CreateFormMutationVariables>({
       query: (variables) => ({ document: CreateFormDocument, variables })
     }),
@@ -264,9 +277,18 @@ const injectedRtkApi = api.injectEndpoints({
     SubmitResponse: build.mutation<SubmitResponseMutation, SubmitResponseMutationVariables>({
       query: (variables) => ({ document: SubmitResponseDocument, variables })
     }),
+    Forms: build.query<FormsQuery, FormsQueryVariables | void>({
+      query: (variables) => ({ document: FormsDocument, variables })
+    }),
+    Form: build.query<FormQuery, FormQueryVariables>({
+      query: (variables) => ({ document: FormDocument, variables })
+    }),
+    Responses: build.query<ResponsesQuery, ResponsesQueryVariables>({
+      query: (variables) => ({ document: ResponsesDocument, variables })
+    }),
   }),
 });
 
 export { injectedRtkApi as api };
-export const { useFormsQuery, useLazyFormsQuery, useFormQuery, useLazyFormQuery, useResponsesQuery, useLazyResponsesQuery, useCreateFormMutation, useUpdateFormMutation, useDeleteFormMutation, useSubmitResponseMutation } = injectedRtkApi;
+export const { useCreateFormMutation, useUpdateFormMutation, useDeleteFormMutation, useSubmitResponseMutation, useFormsQuery, useLazyFormsQuery, useFormQuery, useLazyFormQuery, useResponsesQuery, useLazyResponsesQuery } = injectedRtkApi;
 

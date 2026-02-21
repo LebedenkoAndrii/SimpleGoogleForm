@@ -2,7 +2,7 @@
  * API entry point: base API + generated RTK Query hooks and types.
  * Import hooks and types from here for production use.
  */
-export { api, client } from './baseApi'
+export { api, client } from './baseApi';
 export {
   useFormsQuery,
   useLazyFormsQuery,
@@ -14,7 +14,7 @@ export {
   useUpdateFormMutation,
   useDeleteFormMutation,
   useSubmitResponseMutation,
-} from './generated'
+} from './generated';
 export type {
   Form,
   Question,
@@ -37,4 +37,4 @@ export type {
   DeleteFormMutationVariables,
   SubmitResponseMutation,
   SubmitResponseMutationVariables,
-} from './generated'
+} from './generated';
