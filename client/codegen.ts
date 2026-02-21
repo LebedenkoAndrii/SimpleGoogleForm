@@ -1,9 +1,9 @@
-import type { CodegenConfig } from '@graphql-codegen/cli'
+import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   // Schema from server; set CODEGEN_SCHEMA_PATH=src/graphql/schema.graphql for offline/build
-  schema: process.env.CODEGEN_SCHEMA_PATH ?? 'http://localhost:4000',
-  documents: ['src/graphql/operations.graphql'],
+  schema: process.env.CODEGEN_SCHEMA_PATH ?? 'http://localhost:4000/graphql',
+  documents: ['src/graphql/*.graphql'],
   ignoreNoDocuments: true,
   generates: {
     'src/api/generated.ts': {
@@ -28,6 +28,6 @@ const config: CodegenConfig = {
       },
     },
   },
-}
+};
 
-export default config
+export default config;

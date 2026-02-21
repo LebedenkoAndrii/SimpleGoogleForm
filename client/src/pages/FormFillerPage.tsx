@@ -1,26 +1,25 @@
-import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useFormQuery, useSubmitResponseMutation } from '../api'
-import { ErrorMessage } from '../components/ErrorMessage'
-import { LoadingSpinner } from '../components/LoadingSpinner'
-import type { QuestionType } from '../api'
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useFormQuery, useSubmitResponseMutation } from '../api';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import type { QuestionType } from '../api';
 
-type AnswerState = Record<string, string | string[]>
+type AnswerState = Record<string, string | string[]>;
 
 function QuestionRenderer({
   questionId,
   type,
-  label,
   options,
   value,
   onChange,
 }: {
-  questionId: string
-  type: QuestionType
-  label: string
-  options: string[]
-  value: string | string[]
-  onChange: (value: string | string[]) => void
+  questionId: string;
+  type: QuestionType;
+  label: string;
+  options: string[];
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
 }) {
   if (type === 'TEXT') {
     return (
@@ -30,7 +29,7 @@ function QuestionRenderer({
         onChange={(e) => onChange(e.target.value)}
         className="block w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
-    )
+    );
   }
   if (type === 'DATE') {
     return (
@@ -40,51 +39,55 @@ function QuestionRenderer({
         onChange={(e) => onChange(e.target.value)}
         className="block w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
-    )
+    );
   }
   if (type === 'MULTIPLE_CHOICE') {
-    const selected = (value as string) ?? ''
+    const selected = (value as string) ?? '';
     return (
       <div className="space-y-2">
-        {options.filter((o) => o && o !== '%future added value').map((opt) => (
-          <label key={opt} className="flex cursor-pointer items-center gap-2">
-            <input
-              type="radio"
-              name={questionId}
-              value={opt}
-              checked={selected === opt}
-              onChange={() => onChange(opt)}
-              className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-gray-700">{opt}</span>
-          </label>
-        ))}
+        {options
+          .filter((o) => o && o !== '%future added value')
+          .map((opt) => (
+            <label key={opt} className="flex cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name={questionId}
+                value={opt}
+                checked={selected === opt}
+                onChange={() => onChange(opt)}
+                className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-gray-700">{opt}</span>
+            </label>
+          ))}
       </div>
-    )
+    );
   }
   if (type === 'CHECKBOX') {
-    const selected = (Array.isArray(value) ? value : []) as string[]
+    const selected = (Array.isArray(value) ? value : []) as string[];
     return (
       <div className="space-y-2">
-        {options.filter((o) => o && o !== '%future added value').map((opt) => (
-          <label key={opt} className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              value={opt}
-              checked={selected.includes(opt)}
-              onChange={(e) => {
-                const next = e.target.checked
-                  ? [...selected, opt]
-                  : selected.filter((x) => x !== opt)
-                onChange(next)
-              }}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-gray-700">{opt}</span>
-          </label>
-        ))}
+        {options
+          .filter((o) => o && o !== '%future added value')
+          .map((opt) => (
+            <label key={opt} className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                value={opt}
+                checked={selected.includes(opt)}
+                onChange={(e) => {
+                  const next = e.target.checked
+                    ? [...selected, opt]
+                    : selected.filter((x) => x !== opt);
+                  onChange(next);
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-gray-700">{opt}</span>
+            </label>
+          ))}
       </div>
-    )
+    );
   }
   return (
     <input
@@ -93,49 +96,58 @@ function QuestionRenderer({
       onChange={(e) => onChange(e.target.value)}
       className="block w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
     />
-  )
+  );
 }
 
 export function FormFillerPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { data, isLoading, isError, error } = useFormQuery({ id: id! }, { skip: !id })
-  const [submitResponse, { isLoading: isSubmitting, isError: isSubmitError, error: submitError }] = useSubmitResponseMutation()
-  const [answers, setAnswers] = useState<AnswerState>({})
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { data, isLoading, isError, error } = useFormQuery(
+    { id: id! },
+    { skip: !id },
+  );
+  const [
+    submitResponse,
+    { isLoading: isSubmitting, isError: isSubmitError, error: submitError },
+  ] = useSubmitResponseMutation();
+  const [answers, setAnswers] = useState<AnswerState>({});
 
-  const form = data?.form
-  const questions = form?.questions ?? []
+  const form = data?.form;
+  const questions = form?.questions ?? [];
 
   const setAnswer = (questionId: string, value: string | string[]) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }))
-  }
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!id || !form) return
+    e.preventDefault();
+    if (!id || !form) return;
     const answerList = questions.map((q) => {
-      const v = answers[q.id]
-      const value = Array.isArray(v) ? v.join(', ') : (v ?? '')
-      return { questionId: q.id, value }
-    })
+      const v = answers[q.id];
+      const value = Array.isArray(v) ? v.join(', ') : (v ?? '');
+      return { questionId: q.id, value };
+    });
     try {
-      await submitResponse({ formId: id, answers: answerList }).unwrap()
-      navigate(`/forms/${id}/responses`, { replace: true })
+      await submitResponse({ formId: id, answers: answerList }).unwrap();
+      navigate(`/forms/${id}/responses`, { replace: true });
     } catch {
       // Error shown below
     }
-  }
+  };
 
   if (!id) {
-    return <ErrorMessage message="Missing form ID." />
+    return <ErrorMessage message="Missing form ID." />;
   }
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner />;
   if (isError) {
-    const message = error && 'status' in error ? String((error as { data?: { error?: string } })?.data?.error ?? error) : 'Failed to load form.'
-    return <ErrorMessage message={message} />
+    const message =
+      error && 'status' in error
+        ? String((error as { data?: { error?: string } })?.data?.error ?? error)
+        : 'Failed to load form.';
+    return <ErrorMessage message={message} />;
   }
   if (!form) {
-    return <ErrorMessage message="Form not found." />
+    return <ErrorMessage message="Form not found." />;
   }
 
   return (
@@ -148,7 +160,10 @@ export function FormFillerPage() {
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         {questions.map((q) => (
-          <div key={q.id} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div
+            key={q.id}
+            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          >
             <label className="block text-sm font-medium text-gray-700">
               {q.label}
             </label>
@@ -175,10 +190,17 @@ export function FormFillerPage() {
         </div>
         {isSubmitError && (
           <ErrorMessage
-            message={submitError && 'status' in submitError ? String((submitError as { data?: { error?: string } })?.data?.error ?? submitError) : 'Failed to submit response.'}
+            message={
+              submitError && 'status' in submitError
+                ? String(
+                    (submitError as { data?: { error?: string } })?.data
+                      ?.error ?? submitError,
+                  )
+                : 'Failed to submit response.'
+            }
           />
         )}
       </form>
     </div>
-  )
+  );
 }

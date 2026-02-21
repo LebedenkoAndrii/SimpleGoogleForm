@@ -1,0 +1,57 @@
+# Mutations
+mutation CreateForm(
+  $title: String!
+  $description: String
+  $questions: [QuestionInput!]
+) {
+  createForm(title: $title, description: $description, questions: $questions) {
+    id
+    title
+    description
+    questions {
+      id
+      type
+      label
+      options
+    }
+  }
+}
+
+mutation UpdateForm(
+  $id: ID!
+  $title: String
+  $description: String
+  $questions: [QuestionInput!]
+) {
+  updateForm(
+    id: $id
+    title: $title
+    description: $description
+    questions: $questions
+  ) {
+    id
+    title
+    description
+    questions {
+      id
+      type
+      label
+      options
+    }
+  }
+}
+
+mutation DeleteForm($id: ID!) {
+  deleteForm(id: $id)
+}
+
+mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
+  submitResponse(formId: $formId, answers: $answers) {
+    id
+    formId
+    answers {
+      questionId
+      value
+    }
+  }
+}
