@@ -1,7 +1,8 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
+import { Navigation } from "./Navigation";
 
 interface LayoutProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
@@ -9,20 +10,12 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-gray-50">
       <nav className="border-b bg-white shadow-sm">
         <div className="mx-auto max-w-4xl px-4 py-3">
-          <Link to="/" className="text-lg font-semibold text-blue-600 hover:text-blue-700">
-            Google Forms Lite
-          </Link>
-          <Link to="/" className="ml-6 text-gray-600 hover:text-gray-900">
-            Forms
-          </Link>
-          <Link to="/forms/new" className="ml-6 text-gray-600 hover:text-gray-900">
-            New form
-          </Link>
+          <Navigation />
         </div>
       </nav>
       <main className="mx-auto max-w-4xl px-4 py-8">
         {children ?? <Outlet />}
       </main>
     </div>
-  )
+  );
 }
