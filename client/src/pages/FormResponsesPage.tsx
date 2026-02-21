@@ -55,7 +55,7 @@ export function FormResponsesPage() {
               <dl className="space-y-3">
                 {response.answers.map((a) => {
                   const q = questionMap[a.questionId]
-                  const label = q?.label ?? a.questionId
+                  const label = q?.label ?? 'Question'
                   return (
                     <div key={`${response.id}-${a.questionId}`}>
                       <dt className="text-sm font-medium text-gray-700">{label}</dt>

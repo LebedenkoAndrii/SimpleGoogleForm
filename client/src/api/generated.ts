@@ -79,6 +79,7 @@ export type Question = {
 };
 
 export type QuestionInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
   label: Scalars['String']['input'];
   options?: InputMaybe<Array<Scalars['String']['input']>>;
   type: QuestionType;

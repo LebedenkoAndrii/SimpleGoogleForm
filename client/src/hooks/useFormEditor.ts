@@ -148,6 +148,7 @@ export function useFormEditor(options: UseFormEditorOptions = {}) {
       title: state.title.trim(),
       description: state.description.trim() || undefined,
       questions: state.questions.map((q) => ({
+        ...(formId ? { id: q.id } : {}),
         type: q.type,
         label: q.label.trim(),
         options: isOptionsType(q.type) ? sanitizeOptions(q.options).filter(Boolean) : undefined,

@@ -32,6 +32,7 @@ export const typeDefs = `#graphql
   }
 
   input QuestionInput {
+    id: ID
     type: QuestionType!
     label: String!
     options: [String!]

@@ -32,6 +32,7 @@ type Response {
 }
 
 input QuestionInput {
+  id: ID
   type: QuestionType!
   label: String!
   options: [String!]

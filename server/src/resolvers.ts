@@ -54,7 +54,7 @@ export const resolvers = {
       if (description !== undefined) form.description = description ?? null
       if (questions !== undefined && questions !== null) {
         form.questions = questions.map((q) => ({
-          id: crypto.randomUUID(),
+          id: q.id ?? crypto.randomUUID(),
           type: q.type,
           label: q.label,
           options: q.options ?? [],
