@@ -21,7 +21,6 @@ export function useFormEditor({
   const isEditMode = Boolean(formId);
   const mutationResult = isEditMode ? updateResult : createResult;
 
-  // Функції оновлення стану
   const setTitle = useCallback(
     (title: string) => setState((prev) => ({ ...prev, title })),
     [],
