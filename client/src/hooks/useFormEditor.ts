@@ -1,8 +1,20 @@
 import { useCallback, useState } from 'react'
-import { useCreateFormMutation } from '../api'
+import { useCreateFormMutation, useUpdateFormMutation } from '../api'
 import type { QuestionType } from '../api'
 
+export interface UseFormEditorOptions {
+  formId?: string
+  initialState?: FormEditorState
+}
+
 const QUESTION_TYPES_WITH_OPTIONS: QuestionType[] = ['MULTIPLE_CHOICE', 'CHECKBOX']
+
+/** Codegen adds this to the enum; it must never appear as an answer option. */
+const BAD_OPTION_VALUE = '%future added value'
+
+function sanitizeOptions(options: string[]): string[] {
+  return options.filter((o) => o !== BAD_OPTION_VALUE)
+}
 
 export interface DraftQuestion {
   id: string
@@ -29,13 +41,29 @@ function isOptionsType(type: QuestionType): boolean {
   return QUESTION_TYPES_WITH_OPTIONS.includes(type)
 }
 
-export function useFormEditor() {
-  const [state, setState] = useState<FormEditorState>({
-    title: '',
-    description: '',
-    questions: [],
-  })
+/** Convert API Form to editor state (e.g. for edit mode). */
+export function formToEditorState(form: { title: string; description?: string | null; questions: Array<{ id: string; type: QuestionType; label: string; options: string[] }> }): FormEditorState {
+  return {
+    title: form.title,
+    description: form.description ?? '',
+    questions: form.questions.map((q) => ({
+      id: q.id,
+      type: q.type as QuestionType,
+      label: q.label,
+      options: sanitizeOptions(q.options ?? []),
+    })),
+  }
+}
+
+export function useFormEditor(options: UseFormEditorOptions = {}) {
+  const { formId, initialState } = options
+  const [state, setState] = useState<FormEditorState>(
+    initialState ?? { title: '', description: '', questions: [] }
+  )
   const [createForm, createResult] = useCreateFormMutation()
+  const [updateForm, updateResult] = useUpdateFormMutation()
+  const isEditMode = Boolean(formId)
+  const mutationResult = isEditMode ? updateResult : createResult
 
   const setTitle = useCallback((title: string) => {
     setState((prev) => ({ ...prev, title }))
@@ -120,14 +148,19 @@ export function useFormEditor() {
       title: state.title.trim(),
       description: state.description.trim() || undefined,
       questions: state.questions.map((q) => ({
+        ...(formId ? { id: q.id } : {}),
         type: q.type,
         label: q.label.trim(),
-        options: isOptionsType(q.type) ? q.options.filter(Boolean) : undefined,
+        options: isOptionsType(q.type) ? sanitizeOptions(q.options).filter(Boolean) : undefined,
       })),
     }
+    if (formId) {
+      const result = await updateForm({ id: formId, ...payload }).unwrap()
+      return result.updateForm
+    }
     const result = await createForm(payload).unwrap()
-    return result
-  }, [state.title, state.description, state.questions, createForm])
+    return result.createForm
+  }, [formId, state.title, state.description, state.questions, createForm, updateForm])
 
   const reset = useCallback(() => {
     setState({ title: '', description: '', questions: [] })
@@ -145,13 +178,8 @@ export function useFormEditor() {
     removeOption,
     submit,
     reset,
-    createResult: {
-      isSuccess: createResult.isSuccess,
-      isError: createResult.isError,
-      isLoading: createResult.isLoading,
-      error: createResult.error,
-      data: createResult.data,
-    },
+    createResult: mutationResult,
+    isEditMode,
     isOptionsType,
   }
 }

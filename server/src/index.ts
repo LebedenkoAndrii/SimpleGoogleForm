@@ -1,17 +1,23 @@
-import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { typeDefs } from "./schema.js";
-import { resolvers } from "./resolvers.js";
+import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@as-integrations/express4'
+import cors from 'cors'
+import express from 'express'
+import { typeDefs } from './schema.js'
+import { resolvers } from './resolvers.js'
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+const app = express()
+const server = new ApolloServer({ typeDefs, resolvers })
 
-const PORT = process.env.PORT ?? 4001;
+await server.start()
 
-const { url } = await startStandaloneServer(server, {
-  listen: { port: Number(PORT) },
-});
+app.use(
+  '/graphql',
+  cors(),
+  express.json(),
+  expressMiddleware(server) as unknown as express.RequestHandler
+)
 
-console.log(`Server ready at ${url}`);
+const PORT = process.env.PORT ?? 4000
+app.listen(PORT, () => {
+  console.log(`Server ready at http://localhost:${PORT}/graphql`)
+})

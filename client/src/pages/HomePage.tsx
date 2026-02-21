@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { useFormsQuery } from '../api'
+import { useFormsQuery, useDeleteFormMutation } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 
 export function HomePage() {
-  const { data, isLoading, isError, error } = useFormsQuery()
+  const { data, isLoading, isError, error, refetch } = useFormsQuery()
+  const [deleteForm, { isLoading: isDeleting }] = useDeleteFormMutation()
 
   if (isLoading) return <LoadingSpinner />
   if (isError) {
@@ -13,6 +14,18 @@ export function HomePage() {
   }
 
   const forms = data?.forms ?? []
+
+  const handleDelete = async (e: React.MouseEvent, formId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!window.confirm('Delete this form? This cannot be undone.')) return
+    try {
+      await deleteForm({ id: formId }).unwrap()
+      await refetch()
+    } catch {
+      // List will refetch on next mount or we could show error
+    }
+  }
 
   return (
     <div>
@@ -42,7 +55,7 @@ export function HomePage() {
                   <p className="mt-1 text-sm text-gray-500">{form.description}</p>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Link
                   to={`/forms/${form.id}/fill`}
                   className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
@@ -50,11 +63,25 @@ export function HomePage() {
                   View
                 </Link>
                 <Link
+                  to={`/forms/${form.id}/edit`}
+                  className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Edit
+                </Link>
+                <Link
                   to={`/forms/${form.id}/responses`}
                   className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                 >
                   Responses
                 </Link>
+                <button
+                  type="button"
+                  onClick={(e) => handleDelete(e, form.id)}
+                  disabled={isDeleting}
+                  className="rounded border border-red-200 bg-white px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Delete
+                </button>
               </div>
             </li>
           ))}

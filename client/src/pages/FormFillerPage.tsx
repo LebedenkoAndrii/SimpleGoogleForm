@@ -46,7 +46,7 @@ function QuestionRenderer({
     const selected = (value as string) ?? ''
     return (
       <div className="space-y-2">
-        {options.filter(Boolean).map((opt) => (
+        {options.filter((o) => o && o !== '%future added value').map((opt) => (
           <label key={opt} className="flex cursor-pointer items-center gap-2">
             <input
               type="radio"
@@ -66,7 +66,7 @@ function QuestionRenderer({
     const selected = (Array.isArray(value) ? value : []) as string[]
     return (
       <div className="space-y-2">
-        {options.filter(Boolean).map((opt) => (
+        {options.filter((o) => o && o !== '%future added value').map((opt) => (
           <label key={opt} className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
