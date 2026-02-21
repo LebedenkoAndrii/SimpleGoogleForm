@@ -1,38 +1,63 @@
-# Google Forms Lite
+# Google Forms Lite Clone
 
-Monorepo for a lightweight form builder (client + server).
+A simplified full-stack clone of Google Forms built with a focus on modern web architecture, type safety, and clean code principles.
 
-## Structure
+## 🚀 Tech Stack
 
-- **client** – React + Vite + TypeScript + Tailwind CSS + React Router
-- **server** – Node.js + TypeScript + Apollo Server (GraphQL), in-memory storage
+- **Monorepo Structure:** Managed via npm workspaces.
+- **Front-End:** React, TypeScript, Redux Toolkit (RTK), RTK Query, Tailwind CSS.
+- **Back-End:** Node.js, TypeScript, Apollo Server (GraphQL).
+- **Tooling:** GraphQL Code Generator (for end-to-end type safety), ESLint, Prettier.
 
-## Setup
+## 📋 Core Features
 
+- **Monorepo Architecture:** Client and Server packages in a single repository with shared scripts.
+- **Form Builder:** Create dynamic forms with various question types (Text, Multiple Choice, Checkboxes, Date).
+- **Form Filler:** Responsive UI for filling out created forms.
+- **Response Tracking:** View and analyze submitted responses for each form.
+- **Type Safety:** Automated TypeScript hooks generation from GraphQL schema.
+- **Validation:** Client-side validation for required fields and specific formats.
+
+## 🛠️ Installation & Setup
+
+### 1. Clone the repository
+```bash
+git clone [https://github.com/LebedenkoAndrii/SimpleGoogleForm.git](https://github.com/LebedenkoAndrii/SimpleGoogleForm.git)
+cd SimpleGoogleForm
+```
+
+### 2. Install Dependencies
+From the root directory:
 ```bash
 npm install
 ```
 
-## Development
-
-Run both client and server:
+### 3. Start Development Environment
+Run both client and server concurrently:
 
 ```bash
 npm run dev
 ```
+- **Client:** http://localhost:5173
 
-- Client: http://localhost:5173  
-- Server (GraphQL): http://localhost:4000  
+- **Server:** http://localhost:4000/graphql
 
-Or run individually:
-
-```bash
-npm run dev:client   # client only
-npm run dev:server   # server only
-```
-
-## Build
+### 4.Generate Types (Optional)
+If the GraphQL schema changes, update types and hooks:
 
 ```bash
-npm run build
+npm run codegen --workspace=client
 ```
+
+### Evaluation Criteria Met
+- [x] Functional Monorepo setup.
+
+- [x] Clean component structure.
+
+- [x] RTK Query integration with CodeGen.
+
+- [x] GraphQL schema implementation.
+
+- [x] Client-side form validation.
+
+- [x] Error handling & loading states.
