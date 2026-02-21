@@ -1,27 +1,54 @@
-import { store } from './store.js'
+import { db } from './db.js'
+import type { AnswerInput, QuestionInput } from './schema.types.js'
 
 export const resolvers = {
   Query: {
-    forms: () => store.forms,
+    forms: () => db.forms,
     form: (_: unknown, { id }: { id: string }) =>
-      store.forms.find((f) => f.id === id) ?? null,
+      db.forms.find((f) => f.id === id) ?? null,
+    responses: (_: unknown, { formId }: { formId: string }) =>
+      db.responses.filter((r) => r.formId === formId),
   },
   Mutation: {
-    createForm: (_: unknown, { input }: { input: { title: string; description?: string } }) => {
-      const form = {
+    createForm: (
+      _: unknown,
+      {
+        title,
+        description,
+        questions = [],
+      }: { title: string; description?: string | null; questions?: QuestionInput[] | null }
+    ) => {
+      const formId = crypto.randomUUID()
+      const formQuestions = (questions ?? []).map((q) => ({
         id: crypto.randomUUID(),
-        title: input.title,
-        description: input.description ?? null,
-        createdAt: new Date().toISOString(),
+        type: q.type,
+        label: q.label,
+        options: q.options ?? [],
+      }))
+      const form = {
+        id: formId,
+        title,
+        description: description ?? null,
+        questions: formQuestions,
       }
-      store.forms.push(form)
+      db.forms.push(form)
       return form
     },
-    deleteForm: (_: unknown, { id }: { id: string }) => {
-      const index = store.forms.findIndex((f) => f.id === id)
-      if (index === -1) return false
-      store.forms.splice(index, 1)
-      return true
+    submitResponse: (
+      _: unknown,
+      { formId, answers }: { formId: string; answers: AnswerInput[] }
+    ) => {
+      const form = db.forms.find((f) => f.id === formId)
+      if (!form) {
+        throw new Error(`Form not found: ${formId}`)
+      }
+      const response = {
+        id: crypto.randomUUID(),
+        formId,
+        answers: answers.map((a) => ({ questionId: a.questionId, value: a.value })),
+      }
+      db.responses.push(response)
+      return response
     },
   },
 }
