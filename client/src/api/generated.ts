@@ -206,7 +206,6 @@ export const SubmitResponseDocument = `
     `;
 
 const injectedRtkApi = api.injectEndpoints({
-  overrideExisting: module.hot?.status() === "apply",
   endpoints: (build) => ({
     Forms: build.query<FormsQuery, FormsQueryVariables | void>({
       query: (variables) => ({ document: FormsDocument, variables })
