@@ -1,6 +1,8 @@
-import { useNavigate } from 'react-router-dom'
-import { useFormEditor } from '../hooks/useFormEditor'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useFormQuery } from '../api'
+import { useFormEditor, formToEditorState } from '../hooks/useFormEditor'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import type { QuestionType } from '../api'
 
 const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
@@ -11,18 +13,24 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   '%future added value': 'Other',
 }
 
-export function FormBuilderPage() {
+interface FormBuilderFormProps {
+  formId?: string
+  initialState?: ReturnType<typeof formToEditorState>
+}
+
+function FormBuilderForm({ formId, initialState }: FormBuilderFormProps) {
   const navigate = useNavigate()
-  const editor = useFormEditor()
-  const { state, createResult, isOptionsType } = editor
+  const editor = useFormEditor(formId && initialState ? { formId, initialState } : undefined)
+  const { state, createResult, isEditMode, isOptionsType } = editor
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!state.title.trim()) return
     try {
-      const form = await editor.submit()
-      editor.reset()
-      navigate(`/forms/${form.id}/responses`, { replace: true })
+      const saved = await editor.submit()
+      if (!isEditMode) editor.reset()
+      const targetId = saved?.id ?? formId
+      if (targetId) navigate(`/forms/${targetId}/responses`, { replace: true })
     } catch {
       // Error shown via createResult
     }
@@ -30,7 +38,7 @@ export function FormBuilderPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Create form</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">{isEditMode ? 'Edit form' : 'Create form'}</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <label className="block text-sm font-medium text-gray-700">Title</label>
@@ -137,7 +145,7 @@ export function FormBuilderPage() {
             disabled={createResult.isLoading || !state.title.trim()}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {createResult.isLoading ? 'Saving…' : 'Save form'}
+            {createResult.isLoading ? 'Saving…' : isEditMode ? 'Update form' : 'Save form'}
           </button>
         </div>
 
@@ -148,5 +156,26 @@ export function FormBuilderPage() {
         )}
       </form>
     </div>
+  )
+}
+
+export function FormBuilderPage() {
+  const { id } = useParams<{ id: string }>()
+  const { data, isLoading, isError, error } = useFormQuery({ id: id! }, { skip: !id })
+  const form = data?.form
+
+  if (id && isLoading) return <LoadingSpinner />
+  if (id && isError) {
+    const message = error && 'status' in error ? String((error as { data?: { error?: string } })?.data?.error ?? error) : 'Failed to load form.'
+    return <ErrorMessage message={message} />
+  }
+  if (id && !form) return <ErrorMessage message="Form not found." />
+
+  return (
+    <FormBuilderForm
+      key={form?.id ?? 'new'}
+      formId={form?.id}
+      initialState={form ? formToEditorState(form) : undefined}
+    />
   )
 }
