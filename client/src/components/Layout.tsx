@@ -12,11 +12,11 @@ export function Layout({ children }: LayoutProps) {
           <Link to="/" className="text-lg font-semibold text-blue-600 hover:text-blue-700">
             Google Forms Lite
           </Link>
-          <Link
-            to="/forms"
-            className="ml-6 text-gray-600 hover:text-gray-900"
-          >
+          <Link to="/" className="ml-6 text-gray-600 hover:text-gray-900">
             Forms
+          </Link>
+          <Link to="/forms/new" className="ml-6 text-gray-600 hover:text-gray-900">
+            New form
           </Link>
         </div>
       </nav>

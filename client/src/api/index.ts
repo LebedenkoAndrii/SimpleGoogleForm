@@ -11,6 +11,8 @@ export {
   useResponsesQuery,
   useLazyResponsesQuery,
   useCreateFormMutation,
+  useUpdateFormMutation,
+  useDeleteFormMutation,
   useSubmitResponseMutation,
 } from './generated'
 export type {
@@ -29,6 +31,10 @@ export type {
   ResponsesQueryVariables,
   CreateFormMutation,
   CreateFormMutationVariables,
+  UpdateFormMutation,
+  UpdateFormMutationVariables,
+  DeleteFormMutation,
+  DeleteFormMutationVariables,
   SubmitResponseMutation,
   SubmitResponseMutationVariables,
 } from './generated'
