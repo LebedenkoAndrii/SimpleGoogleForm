@@ -1,23 +1,55 @@
 export const typeDefs = `#graphql
+  enum QuestionType {
+    TEXT
+    MULTIPLE_CHOICE
+    CHECKBOX
+    DATE
+  }
+
+  type Question {
+    id: ID!
+    type: QuestionType!
+    label: String!
+    options: [String!]!
+  }
+
   type Form {
     id: ID!
     title: String!
     description: String
-    createdAt: String!
+    questions: [Question!]!
+  }
+
+  type Answer {
+    questionId: ID!
+    value: String!
+  }
+
+  type Response {
+    id: ID!
+    formId: ID!
+    answers: [Answer!]!
+  }
+
+  input QuestionInput {
+    type: QuestionType!
+    label: String!
+    options: [String!]
+  }
+
+  input AnswerInput {
+    questionId: ID!
+    value: String!
   }
 
   type Query {
     forms: [Form!]!
     form(id: ID!): Form
-  }
-
-  input CreateFormInput {
-    title: String!
-    description: String
+    responses(formId: ID!): [Response!]!
   }
 
   type Mutation {
-    createForm(input: CreateFormInput!): Form!
-    deleteForm(id: ID!): Boolean!
+    createForm(title: String!, description: String, questions: [QuestionInput!]): Form!
+    submitResponse(formId: ID!, answers: [AnswerInput!]!): Response!
   }
 `
